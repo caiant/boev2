@@ -2,7 +2,7 @@ name: Daily Market Report
 on:
   workflow_dispatch:  # Manual trigger
   schedule:
-    - cron: '30 11 * * *'  # 7:30 AM EST (11:30 UTC)
+    - cron: '30 12 * * *'  # 7:30 AM EST (11:30 UTC)
 
 jobs:
   market_report:
