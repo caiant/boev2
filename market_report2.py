@@ -36,9 +36,7 @@ tickers = {
     "S&P Futures": "ES=F",
     "Dow Jones Futures": "YM=F", 
     "Nasdaq Futures": "NQ=F", 
-    "Gold Futures": "GC=F",
-    "UK 10Y Gilt Yield": "",
-    "Germany 10Y Bond Yield": ""
+    "Gold Futures": "GC=F"
 }
 
 def get_trading_economics_yields():
@@ -81,13 +79,8 @@ def get_market_data():
                 change = last_close - prev_close
                 percent_change = (change / prev_close) * 100
                 
-                # Format numbers based on asset type
-                if "Yield" in name:
-                     # Append UK and German yields
-                        bond_yields = get_trading_economics_yields()
-                        for name, value in bond_yields.items():
-                            data.append([name, value, "N/A", "N/A"])
-                elif any(x in name for x in ["Nikkei", "Hang Seng", "FTSE", "DAX", "S&P", "Dow","Nasdaq", "Gold"]):
+                # Format numbers based on asset type      
+                if any(x in name for x in ["Nikkei", "Hang Seng", "FTSE", "DAX", "S&P", "Dow","Nasdaq", "Gold"]):
                     data.append([name, f"{last_close:,.2f}", f"{change:,.2f}", f"{percent_change:.2f}%"])
                 elif any(x in name for x in ["USD/JPY", "EUR/USD", "GBP/USD"]):
                     data.append([name, f"{last_close:.4f}", f"{change:.4f}", f"{percent_change:.2f}%"])
@@ -95,6 +88,11 @@ def get_market_data():
                     data.append([name, f"{last_close:.2f}", f"{change:.2f}", f"{percent_change:.2f}%"])
             else:
                 data.append([name, "No Data", "N/A", "N/A"])
+
+        # Append UK and German yields
+                bond_yields = get_trading_economics_yields()
+                    for name, value in bond_yields.items():
+                        data.append([name, value, "N/A", "N/A"])
         except Exception as e:
             print(f"Error fetching {name}: {str(e)}")
             data.append([name, "Error", "Error", "Error"])
@@ -106,10 +104,6 @@ def format_html_report(df, boe_decision_date):
     """Generate professional HTML report with proper styling"""
     current_time = datetime.now(pytz.timezone('US/Eastern')).strftime('%Y-%m-%d %H:%M %Z')
     
-    # Add BOE decision date to header if available
-    boe_note = ""
-    if boe_decision_date and boe_decision_date != "N/A":
-        boe_note = f"<div style='margin-bottom:15px;'><strong>BOE Rate Decision:</strong> {boe_decision_date}</div>"
     
     html = f"""
     <html>
