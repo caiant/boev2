@@ -15,6 +15,12 @@ import time
 import os
 from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
+import argparse
+
+parser = argparse.ArgumentParser()
+parser.add_argument('--boe-rate', required=True, help='Current BOE Bank Rate')
+parser.add_argument('--decision-date', required=True, help='Rate decision date')
+args = parser.parse_args()
 
 # Email credentials (use environment variables in production)
 EMAIL_ADDRESS = "cailin.antonio@glccap.com"
@@ -42,68 +48,18 @@ tickers = {
     "Gold Futures": "GC=F"
 }
 
-def get_boe_rate():
-    """Fetch current Bank of England Bank Rate from homepage"""
-    try:
-        chrome_options = Options()
-        chrome_options.add_argument("--headless")
-        chrome_options.add_argument("--no-sandbox")
-        chrome_options.add_argument("--disable-dev-shm-usage")
-        chrome_options.add_argument("--window-size=1920,1080")
-        
-        # Use webdriver_manager to handle ChromeDriver automatically
-        service = Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=service, options=chrome_options)
-        
-        driver.get("https://www.bankofengland.co.uk")
-        
-        # Wait for the Bank Rate component to load
-        rate_container = WebDriverWait(driver, 15).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "div.bank-rate")))
-        
-        # Extract the rate and decision date
-        current_rate = WebDriverWait(rate_container, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.bank-rate__rate"))).text.strip()
-        
-        decision_date = WebDriverWait(rate_container, 10).until(
-            EC.visibility_of_element_located((By.CSS_SELECTOR, "div.bank-rate__date"))
-        ).text.strip()
-        
-        # Take verification screenshot
-        os.makedirs("boe_screenshots", exist_ok=True)
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        rate_container.screenshot(f"boe_screenshots/boe_rate_{timestamp}.png")
-        
-        driver.quit()
-        
-        return {
-            "Asset": "BOE Bank Rate",
-            "Last Price": current_rate,
-            "Change": "N/A",
-            "Change %": "N/A",
-            "Decision Date": decision_date
-        }
-        
-    except Exception as e:
-        print(f"Error fetching BOE rate: {e}")
-        return {
-            "Asset": "BOE Bank Rate",
-            "Last Price": "Error",
-            "Change": "N/A",
-            "Change %": "N/A",
-            "Decision Date": "N/A"
-        }
 
 def get_market_data():
     """Fetch market data with enhanced error handling"""
     data = []
+     data = []
     
-    # Get BOE rate first (most important)
-    boe_data = get_boe_rate()
+    # Add BOE rate from arguments
     data.append([
-        boe_data["Asset"],
-        boe_data["Last Price"],
-        boe_data["Change"],
-        boe_data["Change %"]
+        "BOE Bank Rate",
+        args.boe_rate,
+        "N/A",
+        "N/A"
     ])
     
     # Get other market data
@@ -267,13 +223,8 @@ def format_html_report(df, boe_decision_date):
 
 def send_email():
     """Send formatted market report via email"""
-    try:
         # Get market data including BOE rate
         market_data = get_market_data()
-        
-        # Get BOE decision date separately
-        boe_data = get_boe_rate()
-        decision_date = boe_data.get("Decision Date", "N/A")
         
         # Format report
         report_html = format_html_report(market_data, decision_date)
