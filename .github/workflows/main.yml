@@ -18,7 +18,7 @@ jobs:
       
       - name: Install Python Dependencies
         run: |
-          pip install yfinance pandas yagmail pytz requests bs4 re
+          pip install yfinance pandas yagmail pytz requests bs4
       
       - name: Run Market Report
         run: |
