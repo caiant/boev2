@@ -42,27 +42,27 @@ tickers = {
 }
 
 def get_trading_economics_yields():
-    yields = {}
-    urls = {
-        "UK 10Y Gilt Yield": "https://tradingeconomics.com/united-kingdom/government-bond-yield",
-        "Germany 10Y Bond Yield": "https://tradingeconomics.com/germany/government-bond-yield"
-    }
+    yields = []
+    urls = {
+        "UK 10Y Gilt Yield": "https://tradingeconomics.com/united-kingdom/government-bond-yield",
+        "Germany 10Y Bond Yield": "https://tradingeconomics.com/germany/government-bond-yield"
+    }
 
-    headers = {"User-Agent": "Mozilla/5.0"}
+    headers = {"User-Agent": "Mozilla/5.0"}
 
-    for name, url in urls.items():
-        try:
-            response = requests.get(url, headers=headers)
-            soup = BeautifulSoup(response.content, "html.parser")
-            text = soup.get_text(separator=" ", strip=True)
-            match = re.search(rf"{name.split()[0]} 10Y\s+([\d.]+)", text)
-            if match:
-                yields[name] = f"{match.group(1)}%"
-            else:
-                yields[name] = "Not found"
-        except Exception as e:
-            yields[name] = f"Error: {str(e)}"
-    return yields
+    for name, url in urls.items():
+        try:
+            response = requests.get(url, headers=headers)
+            soup = BeautifulSoup(response.content, "html.parser")
+            text = soup.get_text(separator=" ", strip=True)
+            match = re.search(rf"{name.split()[0]} 10Y\s+([\d.]+)", text)
+            if match:
+                yields[name] = f"{match.group(1)}%"
+            else:
+                yields[name] = "Not found"
+        except Exception as e:
+            yields[name] = f"Error: {str(e)}"
+    return yields
     
     
 def get_market_data(): 
