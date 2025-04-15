@@ -17,10 +17,7 @@ from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.chrome.service import Service
 import argparse
 
-parser = argparse.ArgumentParser()
-parser.add_argument('--boe-rate', required=True, help='Current BOE Bank Rate')
-parser.add_argument('--decision-date', required=True, help='Rate decision date')
-args = parser.parse_args()
+
 
 # Email credentials (use environment variables in production)
 EMAIL_ADDRESS = "cailin.antonio@glccap.com"
@@ -45,22 +42,38 @@ tickers = {
     "S&P Futures": "ES=F",
     "Dow Jones Futures": "YM=F", 
     "Nasdaq Futures": "NQ=F", 
-    "Gold Futures": "GC=F"
+    "Gold Futures": "GC=F",
+    "UK 10Y Gilt Yield": "",
+    "Germany 10Y Bond Yield": ""
 }
 
+def get_trading_economics_yields():
+    yields = {}
+    urls = {
+        "UK 10Y Gilt Yield": "https://tradingeconomics.com/united-kingdom/government-bond-yield",
+        "Germany 10Y Bond Yield": "https://tradingeconomics.com/germany/government-bond-yield"
+    }
 
-def get_market_data():
+    headers = {"User-Agent": "Mozilla/5.0"}
+
+    for name, url in urls.items():
+        try:
+            response = requests.get(url, headers=headers)
+            soup = BeautifulSoup(response.content, "html.parser")
+            text = soup.get_text(separator=" ", strip=True)
+            match = re.search(rf"{name.split()[0]} 10Y\s+([\d.]+)", text)
+            if match:
+                yields[name] = f"{match.group(1)}%"
+            else:
+                yields[name] = "Not found"
+        except Exception as e:
+            yields[name] = f"Error: {str(e)}"
+    return yields
+    
+    
+def get_market_data(): 
     """Fetch market data with enhanced error handling"""
     data = []
-     data = []
-    
-    # Add BOE rate from arguments
-    data.append([
-        "BOE Bank Rate",
-        args.boe_rate,
-        "N/A",
-        "N/A"
-    ])
     
     # Get other market data
     for name, symbol in tickers.items():
@@ -76,7 +89,10 @@ def get_market_data():
                 
                 # Format numbers based on asset type
                 if "Yield" in name:
-                    data.append([name, f"{last_close:.2f}%", f"{change:.2f}", f"{percent_change:.2f}%"])
+                     # Append UK and German yields
+                        bond_yields = get_trading_economics_yields()
+                        for name, value in bond_yields.items():
+                            data.append([name, value, "N/A", "N/A"])
                 elif any(x in name for x in ["Nikkei", "Hang Seng", "FTSE", "DAX", "S&P", "Dow","Nasdaq", "Gold"]):
                     data.append([name, f"{last_close:,.2f}", f"{change:,.2f}", f"{percent_change:.2f}%"])
                 elif any(x in name for x in ["USD/JPY", "EUR/USD", "GBP/USD"]):
