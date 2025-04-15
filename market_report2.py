@@ -90,8 +90,8 @@ def get_market_data():
                 data.append([name, "No Data", "N/A", "N/A"])
 
             except Exception as e:
-            print(f"Error fetching {name}: {str(e)}")
-            data.append([name, "Error", "Error", "Error"])
+                print(f"Error fetching {name}: {str(e)}")
+                data.append([name, "Error", "Error", "Error"])
 
     # Append UK and German yields
     bond_yields = get_trading_economics_yields()
