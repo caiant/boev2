@@ -6,17 +6,11 @@ import pandas as pd
 import yagmail 
 from datetime import datetime
 import pytz
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 import time
 import os
-from webdriver_manager.chrome import ChromeDriverManager
-from selenium.webdriver.chrome.service import Service
-import argparse
-
+import requests
+from bs4 import BeautifulSoup
+import re
 
 
 # Email credentials (use environment variables in production)
