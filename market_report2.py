@@ -3,7 +3,7 @@
 
 import yfinance as yf
 import pandas as pd
-import yagmail
+import yagmail 
 from datetime import datetime
 import pytz
 from selenium import webdriver
