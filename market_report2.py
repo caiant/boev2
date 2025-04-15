@@ -101,6 +101,7 @@ def get_market_data():
     
     return pd.DataFrame(data, columns=["Asset", "Last Price", "Change", "Change %"])
 
+
 def format_html_report(df, boe_decision_date):
     """Generate professional HTML report with proper styling"""
     current_time = datetime.now(pytz.timezone('US/Eastern')).strftime('%Y-%m-%d %H:%M %Z')
@@ -233,11 +234,12 @@ def format_html_report(df, boe_decision_date):
 
 def send_email():
     """Send formatted market report via email"""
+    try:
         # Get market data including BOE rate
         market_data = get_market_data()
         
-        # Format report
-        report_html = format_html_report(market_data, decision_date)
+        # Format report - you'll need to define decision_date or pass None
+        report_html = format_html_report(market_data, decision_date="N/A")  # or get this from somewhere
         subject = f"Daily Market Report - {datetime.now().strftime('%Y-%m-%d')}"
         
         # Initialize yagmail
