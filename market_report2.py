@@ -177,7 +177,6 @@ def format_html_report(df):
     </head>
     <body>
         <h2>📈 Daily Market Report - {current_time}</h2>
-        {boe_note}
         <table>
             <thead>
                 <tr>
