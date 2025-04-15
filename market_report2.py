@@ -233,7 +233,7 @@ def send_email():
         market_data = get_market_data()
         
         # Format report - you'll need to define decision_date or pass None
-        report_html = format_html_report(market_data, decision_date="N/A")  # or get this from somewhere
+        report_html = format_html_report(market_data)  # or get this from somewhere
         subject = f"Daily Market Report - {datetime.now().strftime('%Y-%m-%d')}"
         
         # Initialize yagmail
