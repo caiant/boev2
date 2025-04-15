@@ -40,7 +40,7 @@ tickers = {
 }
 
 def get_trading_economics_yields():
-    yields = []
+    yields = {}
     urls = {
         "UK 10Y Gilt Yield": "https://tradingeconomics.com/united-kingdom/government-bond-yield",
         "Germany 10Y Bond Yield": "https://tradingeconomics.com/germany/government-bond-yield"
