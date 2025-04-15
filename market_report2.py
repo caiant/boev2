@@ -59,7 +59,7 @@ def get_boe_rate():
         
         # Wait for the Bank Rate component to load
         rate_container = WebDriverWait(driver, 15).until(
-            EC.presence_of_element_located((By.CSS_SELECTOR, "div.bank-rate"))
+            EC.presence_of_element_located((By.CSS_SELECTOR, "div.bank-rate")))
         
         # Extract the rate and decision date
         current_rate = WebDriverWait(rate_container, 10).until(EC.visibility_of_element_located((By.CSS_SELECTOR, "div.bank-rate__rate"))).text.strip()
