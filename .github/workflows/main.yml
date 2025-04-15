@@ -1,11 +1,72 @@
-name: Daily Market Report
+name: Daily Market Report with JS Scraper
 on:
-  workflow_dispatch:  # Manual trigger
+  workflow_dispatch:
   schedule:
-    - cron: '30 12 * * *'  # 7:30 AM EST (11:30 UTC)
+    - cron: '30 11 * * *'  # 7:30 AM EST (11:30 UTC)
 
 jobs:
-  market_report:
+  scrape_boe_rate:
+    runs-on: ubuntu-latest
+    outputs:
+      bank_rate: ${{ steps.scrape.outputs.bank_rate }}
+      decision_date: ${{ steps.scrape.outputs.decision_date }}
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      
+      - name: Install Puppeteer
+        run: |
+          npm install puppeteer
+          sudo apt-get update
+          sudo apt-get install -y chromium-browser
+      
+      - name: Scrape BOE Rate
+        id: scrape
+        run: |
+          BOE_DATA=$(node -e "
+          const puppeteer = require('puppeteer');
+          
+          (async () => {
+            const browser = await puppeteer.launch({ 
+              headless: true,
+              args: ['--no-sandbox', '--disable-setuid-sandbox']
+            });
+            const page = await browser.newPage();
+            await page.goto('https://www.bankofengland.co.uk', { waitUntil: 'networkidle2' });
+            
+            // Wait for rate component
+            await page.waitForSelector('div.bank-rate');
+            
+            // Extract data
+            const rate = await page.$eval('div.bank-rate__rate', el => el.textContent.trim());
+            const date = await page.$eval('div.bank-rate__date', el => el.textContent.trim());
+            
+            // Take screenshot
+            await page.screenshot({ path: 'boe_screenshot.png' });
+            await browser.close();
+            
+            // Output results
+            console.log(JSON.stringify({ rate, date }));
+          })();
+          ")
+          
+          # Set outputs
+          echo "bank_rate=$(echo $BOE_DATA | jq -r '.rate')" >> $GITHUB_OUTPUT
+          echo "decision_date=$(echo $BOE_DATA | jq -r '.date')" >> $GITHUB_OUTPUT
+      
+      - name: Upload Screenshot
+        uses: actions/upload-artifact@v3
+        with:
+          name: boe-screenshot
+          path: boe_screenshot.png
+
+  generate_report:
+    needs: scrape_boe_rate
     runs-on: ubuntu-latest
     
     steps:
@@ -16,16 +77,12 @@ jobs:
         with:
           python-version: '3.10'
       
-      - name: Install System Dependencies
+      - name: Install Python Dependencies
         run: |
-          sudo apt-get update
-          sudo apt-get install -y chromium-browser
-      
-      - name: Install Python Packages
-        run: |
-          python -m pip install --upgrade pip
-          pip install yfinance pandas yagmail pytz selenium webdriver-manager pillow
+          pip install yfinance pandas yagmail pytz
       
       - name: Run Market Report
-        run: python market_report2.py
-      
+        run: |
+          python market_report2.py \
+            --boe-rate "${{ needs.scrape_boe_rate.outputs.bank_rate }}" \
+            --decision-date "${{ needs.scrape_boe_rate.outputs.decision_date }}"
