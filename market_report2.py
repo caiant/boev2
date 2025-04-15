@@ -89,13 +89,15 @@ def get_market_data():
             else:
                 data.append([name, "No Data", "N/A", "N/A"])
 
-        # Append UK and German yields
-                bond_yields = get_trading_economics_yields()
-                for name, value in bond_yields.items():
-                    data.append([name, value, "N/A", "N/A"])
-        except Exception as e:
+            except Exception as e:
             print(f"Error fetching {name}: {str(e)}")
             data.append([name, "Error", "Error", "Error"])
+
+    # Append UK and German yields
+    bond_yields = get_trading_economics_yields()
+    for name, value in bond_yields.items():
+            data.append([name, value, "N/A", "N/A"])
+
     
     return pd.DataFrame(data, columns=["Asset", "Last Price", "Change", "Change %"])
 
