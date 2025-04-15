@@ -100,7 +100,7 @@ def get_market_data():
     return pd.DataFrame(data, columns=["Asset", "Last Price", "Change", "Change %"])
 
 
-def format_html_report(df, boe_decision_date):
+def format_html_report(df):
     """Generate professional HTML report with proper styling"""
     current_time = datetime.now(pytz.timezone('US/Eastern')).strftime('%Y-%m-%d %H:%M %Z')
     
