@@ -40,8 +40,9 @@ tickers = {
     "US-10 Year Bond Futures": "10Y=F"
 }
 
+
 def get_trading_economics_yields():
-    yields = { }
+    yields = {}
     urls = {
         "UK 10Y Gilt Yield": "https://tradingeconomics.com/united-kingdom/government-bond-yield",
         "Germany 10Y Bond Yield": "https://tradingeconomics.com/germany/government-bond-yield"
@@ -78,6 +79,11 @@ def get_trading_economics_yields():
 
     return yields
 
+# Example usage
+if __name__ == "__main__":
+    result = get_trading_economics_yields()
+    for country, data in result.items():
+        print(f"{country}: {data}")
     
 def get_market_data(): 
     """Fetch market data with enhanced error handling"""
