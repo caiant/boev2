@@ -118,7 +118,7 @@ def get_market_data():
  # Append UK and German yields
     bond_yields = get_trading_economics_yields()
     for name, value in bond_yields.items():
-            data.append([name, value, "N/A", "N/A"])
+            data.append([name, value, change, change_pct])
 
     
     return pd.DataFrame(data, columns=["Asset", "Last Price", "Change", "Change %"])
