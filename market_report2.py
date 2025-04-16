@@ -40,28 +40,49 @@ tickers = {
     "US-10 Year Bond Futures": "ZN=F"
 }
 
+import requests
+from bs4 import BeautifulSoup
+import re
+
 def get_trading_economics_yields():
-    yields = {}
-    urls = {
-        "UK 10Y Gilt Yield": "https://tradingeconomics.com/united-kingdom/government-bond-yield",
-        "Germany 10Y Bond Yield": "https://tradingeconomics.com/germany/government-bond-yield"
-    }
+    yields = {}
+    urls = {
+        "UK 10Y Gilt Yield": "https://tradingeconomics.com/united-kingdom/government-bond-yield",
+        "Germany 10Y Bond Yield": "https://tradingeconomics.com/germany/government-bond-yield"
+    }
 
-    headers = {"User-Agent": "Mozilla/5.0"}
+    headers = {"User-Agent": "Mozilla/5.0"}
 
-    for name, url in urls.items():
-        try:
-            response = requests.get(url, headers=headers)
-            soup = BeautifulSoup(response.content, "html.parser")
-            text = soup.get_text(separator=" ", strip=True)
-            match = re.search(rf"{name.split()[0]} 10Y\s+([\d.]+)", text)
-            if match:
-                yields[name] = f"{match.group(1)}%"
-            else:
-                yields[name] = "Not found"
-        except Exception as e:
-            yields[name] = f"Error: {str(e)}"
-    return yields
+    for name, url in urls.items():
+        try:
+            response = requests.get(url, headers=headers)
+            soup = BeautifulSoup(response.content, "html.parser")
+
+            # Look for the section that holds the yield info
+            quote_container = soup.find("div", {"class": "table chart"})
+            if not quote_container:
+                quote_container = soup.find("div", class_="ticker-home")  # fallback
+
+            if quote_container:
+                # The numbers typically appear in order: [Yield, Change, Change %]
+                values = quote_container.find_all("span", class_="value")
+                if len(values) >= 3:
+                    yield_value = values[0].text.strip()
+                    change = values[1].text.strip()
+                    change_pct = values[2].text.strip()
+                    yields[name] = {
+                        "Yield": yield_value,
+                        "Change": change,
+                        "Change %": change_pct
+                    }
+                else:
+                    yields[name] = "Could not parse yield data"
+            else:
+                yields[name] = "No yield container found"
+        except Exception as e:
+            yields[name] = f"Error: {str(e)}"
+
+    return yields
     
     
 def get_market_data(): 
