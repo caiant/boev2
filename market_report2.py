@@ -40,59 +40,28 @@ tickers = {
     "US-10 Year Bond Futures": "ZN=F"
 }
 
-def get_trading_economics_yields_with_changes():
-    yields_data = {}
+def get_trading_economics_yields():
+    yields = {}
     urls = {
-        "UK 10Y Gilt": "https://tradingeconomics.com/united-kingdom/government-bond-yield",
-        "Germany 10Y Bund": "https://tradingeconomics.com/germany/government-bond-yield"
+        "UK 10Y Gilt Yield": "https://tradingeconomics.com/united-kingdom/government-bond-yield",
+        "Germany 10Y Bond Yield": "https://tradingeconomics.com/germany/government-bond-yield"
     }
 
-    headers = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-    }
+    headers = {"User-Agent": "Mozilla/5.0"}
 
     for name, url in urls.items():
         try:
-            response = requests.get(url, headers=headers, timeout=10)
-            response.raise_for_status()
+            response = requests.get(url, headers=headers)
             soup = BeautifulSoup(response.content, "html.parser")
-            
-            # Find the main table containing the bond data
-            table = soup.find('table', {'id': 'te-bond-table'})
-            if not table:
-                yields_data[name] = {"error": "Data table not found"}
-                continue
-                
-            # Find the row for 10Y bond
-            rows = table.find_all('tr')
-            for row in rows:
-                cols = [col.get_text(strip=True) for col in row.find_all('td')]
-                if len(cols) >= 5 and '10Y' in cols[0]:
-                    # Extract all relevant data points
-                    current_yield = cols[1]
-                    change_abs = cols[2]  # Absolute change
-                    change_pct = cols[3]  # Percentage change
-                    
-                    # Validate and store the data
-                    if all([current_yield, change_abs, change_pct]):
-                        yields_data[name] = {
-                            "yield": f"{current_yield}%",
-                            "change": change_abs,
-                            "change%": change_pct,
-                            "time": cols[4] if len(cols) > 4 else "N/A"  # Time of last update
-                        }
-                    else:
-                        yields_data[name] = {"error": "Incomplete data found"}
-                    break
+            text = soup.get_text(separator=" ", strip=True)
+            match = re.search(rf"{name.split()[0]} 10Y\s+([\d.]+)", text)
+            if match:
+                yields[name] = f"{match.group(1)}%"
             else:
-                yields_data[name] = {"error": "10Y bond data not found"}
-                
-        except requests.exceptions.RequestException as e:
-            yields_data[name] = {"error": f"Request failed: {str(e)}"}
+                yields[name] = "Not found"
         except Exception as e:
-            yields_data[name] = {"error": f"Processing error: {str(e)}"}
-            
-    return yields_data
+            yields[name] = f"Error: {str(e)}"
+    return yields
     
     
 def get_market_data(): 
@@ -125,21 +94,10 @@ def get_market_data():
             print(f"Error fetching {name}: {str(e)}")
             data.append([name, "Error", "Error", "Error"])
 
-# Get yields with change data
-    yield_data = get_trading_economics_yields_with_changes()
-
-    for name, metrics in yield_data.items():
-        if 'error' in metrics:
-            # Handle error case - maybe log it or use default values
-            data.append([name, "Error", "N/A", "N/A"])
-        else:
-            # Append all available metrics
-            data.append([
-                name,
-                metrics.get('yield', 'N/A'),
-                metrics.get('change', 'N/A'),
-                metrics.get('change_percent', 'N/A')
-            ])
+ # Append UK and German yields
+    bond_yields = get_trading_economics_yields()
+    for name, value in bond_yields.items():
+            data.append([name, value, "N/A", "N/A"])
 
     
     return pd.DataFrame(data, columns=["Asset", "Last Price", "Change", "Change %"])
