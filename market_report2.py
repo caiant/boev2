@@ -44,8 +44,6 @@ import requests
 from bs4 import BeautifulSoup
 import re
 
-import requests
-from bs4 import BeautifulSoup
 
 def get_trading_economics_yields():
     yields = {}
@@ -84,7 +82,7 @@ def get_trading_economics_yields():
             yields[name] = f"Error: {str(e)}"
 
     return yields
-    
+
     
 def get_market_data(): 
     """Fetch market data with enhanced error handling"""
