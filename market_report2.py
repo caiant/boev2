@@ -142,7 +142,7 @@ for name, metrics in yield_data.items():
         ])
 
     
-    return pd.DataFrame(data, columns=["Asset", "Last Price", "Change", "Change %"])
+return pd.DataFrame(data, columns=["Asset", "Last Price", "Change", "Change %"])
 
 
 def format_html_report(df):
