@@ -37,12 +37,15 @@ tickers = {
     "Dow Jones Futures": "YM=F", 
     "Nasdaq Futures": "NQ=F", 
     "Gold Futures": "GC=F", 
-    "US-10 Year Bond Futures": "ZN=F"
+    "US-10 Year Bond Futures": "10Y=F"
 }
 
 import requests
 from bs4 import BeautifulSoup
 import re
+
+import requests
+from bs4 import BeautifulSoup
 
 def get_trading_economics_yields():
     yields = {}
@@ -58,13 +61,11 @@ def get_trading_economics_yields():
             response = requests.get(url, headers=headers)
             soup = BeautifulSoup(response.content, "html.parser")
 
-            # Look for the section that holds the yield info
             quote_container = soup.find("div", {"class": "table chart"})
             if not quote_container:
                 quote_container = soup.find("div", class_="ticker-home")  # fallback
 
             if quote_container:
-                # The numbers typically appear in order: [Yield, Change, Change %]
                 values = quote_container.find_all("span", class_="value")
                 if len(values) >= 3:
                     yield_value = values[0].text.strip()
