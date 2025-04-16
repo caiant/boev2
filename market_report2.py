@@ -36,7 +36,8 @@ tickers = {
     "S&P Futures": "ES=F",
     "Dow Jones Futures": "YM=F", 
     "Nasdaq Futures": "NQ=F", 
-    "Gold Futures": "GC=F"
+    "Gold Futures": "GC=F", 
+    "US-10 Year Bond Futures": "ZN=F"
 }
 
 def get_trading_economics_yields():
@@ -80,7 +81,7 @@ def get_market_data():
                 percent_change = (change / prev_close) * 100
                 
                 # Format numbers based on asset type      
-                if any(x in name for x in ["Nikkei", "Hang Seng", "FTSE", "DAX", "S&P", "Dow","Nasdaq", "Gold"]):
+                if any(x in name for x in ["Nikkei", "Hang Seng", "FTSE", "DAX", "S&P", "Dow","Nasdaq", "Gold", "10 Year"]):
                     data.append([name, f"{last_close:,.2f}", f"{change:,.2f}", f"{percent_change:.2f}%"])
                 elif any(x in name for x in ["USD/JPY", "EUR/USD", "GBP/USD"]):
                     data.append([name, f"{last_close:.4f}", f"{change:.4f}", f"{percent_change:.2f}%"])
