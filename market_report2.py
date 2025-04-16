@@ -40,11 +40,6 @@ tickers = {
     "US-10 Year Bond Futures": "10Y=F"
 }
 
-import requests
-from bs4 import BeautifulSoup
-import re
-
-
 def get_trading_economics_yields():
     yields = {}
     urls = {
