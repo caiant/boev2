@@ -126,23 +126,23 @@ def get_market_data():
             data.append([name, "Error", "Error", "Error"])
 
 # Get yields with change data
-yield_data = get_trading_economics_yields_with_changes()
+    yield_data = get_trading_economics_yields_with_changes()
 
-for name, metrics in yield_data.items():
-    if 'error' in metrics:
-        # Handle error case - maybe log it or use default values
-        data.append([name, "Error", "N/A", "N/A"])
-    else:
-        # Append all available metrics
-        data.append([
-            name,
-            metrics.get('yield', 'N/A'),
-            metrics.get('change', 'N/A'),
-            metrics.get('change_percent', 'N/A')
-        ])
+    for name, metrics in yield_data.items():
+        if 'error' in metrics:
+            # Handle error case - maybe log it or use default values
+            data.append([name, "Error", "N/A", "N/A"])
+        else:
+            # Append all available metrics
+            data.append([
+                name,
+                metrics.get('yield', 'N/A'),
+                metrics.get('change', 'N/A'),
+                metrics.get('change_percent', 'N/A')
+            ])
 
     
-return pd.DataFrame(data, columns=["Asset", "Last Price", "Change", "Change %"])
+    return pd.DataFrame(data, columns=["Asset", "Last Price", "Change", "Change %"])
 
 
 def format_html_report(df):
