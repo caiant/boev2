@@ -105,7 +105,7 @@ def get_market_data():
                 if name == "US-10 Year Bond Futures":
                     yield_value = calculate_bond_yield(last_close)
                     data.append([name, f"{last_close:.2f}", f"{change:.2f}", f"{percent_change:.2f}%"])
-                    data.append(["US-10Y Implied Futures Yield", f"{yield_value:.2f}%", f"{change:.2f}", f"{change:.2f}"])
+                    data.append(["US-10Y Implied Futures Yield", f"{yield_value:.2f}%", f"{change:.2f}", f"{percent_change:.2f}%"])
                 else:
                     # Format numbers based on asset type      
                     if any(x in name for x in ["Nikkei", "Hang Seng", "FTSE", "DAX", "S&P", "Dow", "Nasdaq", "Gold"]):
